@@ -9,6 +9,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/id_id"
             android:text="ID: 1483"
             android:paddingRight="10dp" />
         <TextView
@@ -25,11 +26,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Diff: 85%"
-            android:paddingRight="10dp" />
+            android:paddingRight="10dp"
+            android:id="@+id/difficulty_label"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Percent Correct: 29%"/>
+            android:text="Percent Correct: 29%"
+            android:id="@+id/number_correct_label"/>
         </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
@@ -37,7 +40,8 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New" />
+            android:text="New"
+            android:onClick="show_question"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -69,23 +73,28 @@
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="laid in organizing the Empire, but Greece’s had laid"/>
+                android:text="laid in organizing the Empire, but Greece’s had laid"
+                android:id="@+id/a_button"/>
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="laid in the organization of the Empire, but Greece’s had lain"/>
+                android:text="laid in the organization of the Empire, but Greece’s had lain"
+                android:id="@+id/b_button" />
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="laid in organizing the Empire, whereas Greece’s had lain"/>
+                android:text="laid in organizing the Empire, whereas Greece’s had lain"
+                android:id="@+id/c_button" />
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="lay in organizing the Empire, whereas Greece’s had lain"/>
+                android:text="lay in organizing the Empire, whereas Greece’s had lain"
+                android:id="@+id/d_button" />
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="lay in the organization of the Empire, whereas Greece’s had laid"/>
+                android:text="lay in the organization of the Empire, whereas Greece’s had laid"
+                android:id="@+id/e_button" />
         </RadioGroup>
         <Button
             android:layout_width="match_parent"

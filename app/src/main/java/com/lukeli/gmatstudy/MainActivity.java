@@ -17,6 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.TextView;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks{ //TODO: Make Navigation Drawer new Activity
 
@@ -32,6 +35,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private FirstFragment frag;
+    private GMATTesterPresenter presenter;
+    private HashMap<String, Object> settings;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -42,7 +47,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.results_screen);
-
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -58,56 +62,58 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
         frag = new FirstFragment();
         fragmentTransaction.add(R.id.container, frag);
         fragmentTransaction.commit();
+        settings = new HashMap<>();
+        start_study();
+    }
 
-        SQLiteDatabase contactsDB = null;
-        String DB_PATH = "/sdcard/gmatstudy/";
-        Log.d("gmatstudy", DB_PATH);
-        String DB_NAME = "db.db";
-        File dbfile = new File(DB_PATH + DB_NAME);
-        Log.d("gmatstudy", "DOES IT EXIST? " + dbfile.exists());
-         contactsDB = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
-        Cursor c = contactsDB.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+    public void set_presenter(GMATTesterPresenter presenter){
+        this.presenter = presenter;
+    }
 
-        if (c.moveToFirst()) {
-            while ( !c.isAfterLast() ) {
-                Log.d("gmatstudy", c.getString(0));
-                Toast.makeText(MainActivity.this, "Table Name=> "+c.getString(0), Toast.LENGTH_LONG).show();
-                c.moveToNext();
-            }
+    public void update_main_question(HashMap<String, Object> question, HashMap<String, Object> answer_result){
+        Log.d("gmatstudy","HERE I SHOW A QUESTION : " + question.toString());
+        if(getSupportFragmentManager().findFragmentById(R.id.container) != null) {
+            ((TextView) getSupportFragmentManager().findFragmentById(R.id.container).getView().findViewById(R.id.question_id)).setText((String) question.get("question"));
         }
-        Cursor cursor = contactsDB.rawQuery("SELECT * FROM AnsweredQs", null);
-
-        // Get the index for the column name provided
-        int idColumn = cursor.getColumnIndex("Date");
-        int nameColumn = cursor.getColumnIndex("ID");
-
-        // Move to the first row of results
-        cursor.moveToFirst();
-
-        String contactList = "";
-
-        // Verify that we have results
-        if(cursor != null && (cursor.getCount() > 0)){
-
-            do{
-                // Get the results and store them in a String
-                String id = cursor.getString(idColumn);
-                String name = cursor.getString(nameColumn);
-
-                contactList = contactList + id + " : " + name + " : " + "\n";
-
-                // Keep getting results as long as they exist
-            }while(cursor.moveToNext());
-
-            Log.d("SQL",contactList);
-
-        } else {
-
-            Toast.makeText(this, "No Results to Show", Toast.LENGTH_SHORT).show();
-
-
-        }
-
+        /**
+         if question['has_image']:
+         import os
+         question_image = QtGui.QPixmap(os.path.join(os.path.dirname(os.path.realpath(__file__)), question['image_path']))
+         self.question_image.setVisible(True)
+         self.question_image.setPixmap(question_image)
+         self.question_image.show()
+         self.question.setText(question["question"])
+         self.settings["num_questions"] = question["max_questions"] if self.settings["num_questions"] == ""  or self.settings["num_questions"] > question["max_questions"] else self.settings["num_questions"]
+         self.question_number_label.setText("{0}/{1}".format(question["question_number"], self.settings["num_questions"]))
+         if self.question_number_label.text() == "{0}/{0}".format(self.settings["num_questions"]) and not answer_result:
+         self.next_question_button.setDisabled(True)
+         self.new_question_button.setDisabled(True)
+         self.id_label.setText("ID: {0}".format(question["id"]))
+         self.difficulty_label.setText("Difficulty: {0}".format(question["difficulty"]))
+         self.number_correct_label.setText("Percentage Correct: {0}".format(question["number_correct"]))
+         answer_labels = ["(A)", "(B)", "(C)", "(D)", "(E)"]
+         letters = ["a", "b", "c", "d", "e"]
+         for i in range(0, len(self.answer_widgets)):
+         self.answer_widgets[i].setVisible(True)
+         self.answer_widgets[i].setText("{0} {1}".format(answer_labels[i], question[letters[i]]))
+         if answer_result is not None:
+         self.reset_question()
+         my_answer = answer_result["my_answer"]
+         right_answer = answer_result["right_answer"]
+         for i in range(0, len(self.answer_widgets)):
+         if right_answer in answer_labels[i]:
+         self.answer_widgets[i].setStyleSheet("* {background-color: rgb(0, 255, 0);}")
+         if my_answer in answer_labels[i]:
+         if my_answer != right_answer:
+         self.answer_widgets[i].setStyleSheet("* {background-color: rgb(255, 0, 0);}")
+         self.answer_widgets[i].setChecked(True)
+         self.submit_answer_button.setVisible(False)
+         self.answer_widgets[i].setDisabled(True)
+         m = answer_result["time_taken"][0]
+         s = answer_result["time_taken"][1]
+         time = "{0:02d}:{1:02d}".format(m,s)
+         self.time_taken.setText(time)
+         */
     }
 
     @Override
@@ -132,6 +138,46 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
                 mTitle = getString(R.string.title_section3);
                 break;
         }
+    }
+
+    public void start_study(){
+
+        settings.put("show_answer_immediately", true); //show_answer_immediately.isChecked());
+        settings.put("num_questions", "");//= '' if number_of_questions.text() == '' else int(number_of_questions.text()));
+        settings.put("min_difficulty", "");//= '' if minimum_difficulty.text() == '' else int(minimum_difficulty.text()));
+        settings.put("max_difficulty", "");//= '' if maximum_difficulty.text() == '' else int(maximum_difficulty.text()));
+        settings.put("min_percentage", "");//= '' if minimum_percentage.text() == '' else int(minimum_percentage.text()));
+        settings.put("max_percentage", "");//= '' if maximum_percentage.text() == '' else int(maximum_percentage.text()));
+        settings.put("min_sessions", "");//= '' if minimum_sessions.text() == '' else int(minimum_sessions.text()));
+        settings.put("max_sessions", "");//= '' if maximum_sessions.text() == '' else int(maximum_sessions.text()));
+        settings.put("store_answers", false);//= store_answers.isChecked());
+        settings.put("only_unanswered", false);//= only_unanswered_questions.isChecked());
+        settings.put("only_answered", false);//= only_answered_questions.isChecked());
+        settings.put("only_wrong", false);//= only_wrong_questions.isChecked());
+        settings.put("only_right",false);// = only_right_questions.isChecked());
+        settings.put("show_stats",false);// = show_answered_stats.isChecked());
+        settings.put("min_wrong", "");//= '' if min_wrong.text() == '' else int(min_wrong.text()));
+        settings.put("min_right", "");//= '' if min_right.text() == '' else int(min_right.text()));
+        settings.put("questions_to_get", new HashMap<String, Object>(){{
+            put("DS", true);//DS_checkbox.isChecked());
+            put("PS", false);//PS_checkbox.isChecked());
+            put("SC", false);//SC_checkbox.isChecked());
+            put("CR", false);//CR_checkbox.isChecked());
+        }});
+        presenter.start_study(settings);
+        show_question();
+    }
+
+    private void show_question(){
+        /**
+        self.reset_question()
+        if self.question_number_label.text() == "{0}/{0}".format(self.settings["num_questions"]):
+        self.end_study_and_see_results()
+        else:
+        self.presenter.show_question()
+        self.timer.start(1000)
+         **/
+        presenter.show_question();
     }
 
     @SuppressWarnings("deprecation")
