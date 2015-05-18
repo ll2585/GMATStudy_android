@@ -1,23 +1,34 @@
 package com.lukeli.gmatstudy;
 
 import android.app.Activity;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigation Drawer new Activity
@@ -34,6 +45,12 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
     private RadioButton d_button;
     private RadioButton e_button;
     private RadioButton[] answer_widgets;
+    private Button submit_answer_button;
+    private Button next_question_button;
+    private RadioGroup answer_button_radiogroup;
+    private int m;
+    private int s;
+    private Chronometer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +65,11 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
         c_button = (RadioButton) findViewById(R.id.c_button);
         d_button = (RadioButton) findViewById(R.id.d_button);
         e_button = (RadioButton) findViewById(R.id.e_button);
+        answer_button_radiogroup = (RadioGroup) findViewById(R.id.answer_button_radiogroup);
         answer_widgets = new RadioButton[] {a_button, b_button, c_button, d_button, e_button};
+        next_question_button = (Button) findViewById(R.id.next_question_button);
+        submit_answer_button = (Button) findViewById(R.id.submit_answer_button);
+        timer = (Chronometer) findViewById(R.id.timer);
         set_presenter(new GMATTesterPresenter(this, new GMATTesterModel()));
         settings = new HashMap<>();
         start_study();
@@ -60,10 +81,10 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
 
     public void update_main_question(HashMap<String, Object> question, HashMap<String, Object> answer_result){
         Log.d("gmatstudy", "HERE I SHOW A QUESTION : " + question.toString());
-        this.question.setText((String) question.get("question"));
+        this.question.setText(Html.fromHtml((String) question.get("question")));
         this.id_label.setText(MessageFormat.format("ID: {0}", question.get("id")));
-        this.difficulty_label.setText(MessageFormat.format("Difficulty: {0}", question.get("difficulty")));
-        this.number_correct_label.setText(MessageFormat.format("Percentage Correct: {0}", question.get("number_correct")));
+        this.difficulty_label.setText(MessageFormat.format("Diff: {0}", question.get("difficulty")));
+        this.number_correct_label.setText(MessageFormat.format("Percent Correct: {0}", question.get("number_correct")));
         String[] answer_labels = {"(A)", "(B)", "(C)", "(D)", "(E)"};
         String[] letters = {"a", "b", "c", "d", "e"};
         for (int i = 0; i < this.answer_widgets.length; i++){
@@ -122,13 +143,32 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
         settings.put("min_wrong", "");//= '' if min_wrong.text() == '' else int(min_wrong.text()));
         settings.put("min_right", "");//= '' if min_right.text() == '' else int(min_right.text()));
         settings.put("questions_to_get", new HashMap<String, Object>(){{
-            put("DS", true);//DS_checkbox.isChecked());
+            put("DS", false);//DS_checkbox.isChecked());
             put("PS", false);//PS_checkbox.isChecked());
-            put("SC", false);//SC_checkbox.isChecked());
+            put("SC", true);//SC_checkbox.isChecked());
             put("CR", false);//CR_checkbox.isChecked());
         }});
-        presenter.start_study(settings);
-        show_question();
+        for (RadioButton widget : answer_widgets) {
+            widget.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    submit_answer_button.setVisibility(View.GONE);
+                    for (RadioButton widget : answer_widgets) {
+                        if(widget.isChecked()){
+                            submit_answer_button.setVisibility(View.VISIBLE);
+                            break;
+                        }
+                    }
+                }
+            });
+            widget.setVisibility(View.INVISIBLE);
+            widget.setBackgroundColor(Color.TRANSPARENT);
+        }
+
+        new SQLLoaderView().execute();
+
+        m = 0;
+        s = 0;
     }
 
     private void show_question(){
@@ -140,10 +180,23 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
         self.presenter.show_question()
         self.timer.start(1000)
          **/
+        reset_question();
         presenter.show_question();
+        timer.start();
     }
 
-
+    private void reset_question() {
+        next_question_button.setVisibility(View.GONE);
+        //question_image.setVisible(False)
+        for (RadioButton widget : answer_widgets) {
+            widget.setEnabled(true);
+            widget.setChecked(false);
+            widget.setBackgroundColor(Color.TRANSPARENT);
+        }
+        answer_button_radiogroup.clearCheck();
+        timer.stop();
+        timer.setBase(SystemClock.elapsedRealtime());
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -169,5 +222,49 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
 
     public void show_question(View view) {
         show_question();
+    }
+
+    public void submit_answer(View view) {
+        timer.stop();
+        String[] answer_labels = {"A", "B", "C", "D", "E"};
+        for (int i =0; i < answer_widgets.length; i++) {
+            if(answer_widgets[i].isChecked()) {
+                presenter.submitted_answer(answer_labels[i],new int[] {m, s});
+                break;
+            }
+        }
+    }
+
+    public void show_right_answer(String right_answer){
+        if (!(boolean) settings.get("show_answer_immediately")){
+            show_question();
+            return;
+        }
+        String[] answer_labels = {"A", "B", "C", "D", "E"};
+        for(int i = 0; i < answer_widgets.length; i++) {
+            if (answer_labels[i].equals(right_answer) ) {
+                answer_widgets[i].setBackgroundColor(Color.GREEN);
+            }
+            else if (answer_widgets[i].isChecked()) {
+                answer_widgets[i].setBackgroundColor(Color.RED);
+            }
+            answer_widgets[i].setEnabled(false);
+        }
+        next_question_button.setVisibility(View.VISIBLE);
+        submit_answer_button.setVisibility(View.GONE);
+    }
+
+
+    private class SQLLoaderView extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            presenter.start_study(settings);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            show_question();
+        }
     }
 }

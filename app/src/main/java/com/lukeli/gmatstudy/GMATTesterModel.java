@@ -3,6 +3,7 @@ package com.lukeli.gmatstudy;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -77,11 +78,12 @@ public class GMATTesterModel {
         }};
     }
 
-    private String get_answer(){
+    public String get_answer(){
         return cur_question.getAnswer();
     }
 
     private void load_questions_from_sql(){
+
         SQLiteDatabase conn = SQLiteUtils.connect("db.db");
         ArrayList<Question> ds_questions = new ArrayList<>();
         ArrayList<Question> ps_questions = new ArrayList<>();
@@ -96,6 +98,8 @@ public class GMATTesterModel {
         ArrayList<ArrayList<Object>> sc_qs = SQLiteUtils.fetch_all(cursor);
         cursor = conn.rawQuery("SELECT * FROM CRQuestions", null);
         ArrayList<ArrayList<Object>> cr_qs = SQLiteUtils.fetch_all(cursor);
+        cursor.close();
+        conn.close();
         for (ArrayList<Object> d : ds_qs) {
             Question this_question = new Question.QuestionBuilder()
                     .setId((int) d.get(0))
@@ -117,10 +121,92 @@ public class GMATTesterModel {
                 ds_questions.add(this_question);
                 possible_questions.get("DS").put(String.valueOf(d.get(0)), this_question);
         }
-        cursor.close();
-        conn.close();
         Collections.sort(ds_questions);
         question_ids.put("DS", ds_questions);
+
+        for (ArrayList<Object> d : ps_qs) {
+            Question this_question = new Question.QuestionBuilder()
+                    .setId((int) d.get(0))
+                    .setQuestion(MessageFormat.format("{0}", d.get(2)))
+                    .setSource((String) d.get(12))
+                    .setAnswers(new String[]{(String) d.get(3),
+                            (String) d.get(4),
+                            (String) d.get(5),
+                            (String) d.get(6),
+                            (String) d.get(7)})
+                    .setAnswer((String) d.get(8))
+                    .setExplanation((String) d.get(12))
+                    .setDifficulty_bin_1((String) d.get(13))
+                    .setDifficulty_bin_2((String) d.get(14))
+                    .setImage((String) d.get(11))
+                    .setType("PS")
+                    .setSessions((int) (d.get(15).equals("N/A") ? 0 : d.get(15)))
+                    .setFlagged(d.get(16) != null).build();
+            ps_questions.add(this_question);
+            possible_questions.get("PS").put(String.valueOf(d.get(0)), this_question);
+        }
+        Collections.sort(ps_questions);
+        question_ids.put("PS", ps_questions);
+
+        for (ArrayList<Object> d : sc_qs) {
+            if(((int) d.get(0)) == 555){
+                Log.d("gmatstudy", (String) d.get(2));
+            }
+            Question this_question = new Question.QuestionBuilder()
+                    .setId((int) d.get(0))
+                    .setQuestion(MessageFormat.format("{0}", ((String) d.get(2)).replace("<span style=\"text-decoration: underline\">","<u>")
+                            .replace("</span>","</u>")
+                            .replace("<br/>"," ")
+                            .replace("\n<u>"," <u>")
+                            .replace("</u>\n,","</u>,")
+                            .replace("</u>\n.","</u>.")
+                            .replace("</u>\n","</u> ")
+                            .replace("  ", " ")
+                            .replace("\n",""))) //replace underlines blahblah
+                    .setSource((String) d.get(12))
+                    .setAnswers(new String[]{(String) d.get(3),
+                            (String) d.get(4),
+                            (String) d.get(5),
+                            (String) d.get(6),
+                            (String) d.get(7)})
+                    .setAnswer((String) d.get(8))
+                    .setExplanation((String) d.get(12))
+                    .setDifficulty_bin_1((String) d.get(13))
+                    .setDifficulty_bin_2((String) d.get(14))
+                    .setImage((String) d.get(11))
+                    .setType("SC")
+                    .setSessions((int) (d.get(15).equals("N/A") ? 0 : d.get(15)))
+                    .setFlagged(d.get(16) != null).build();
+            sc_questions.add(this_question);
+            possible_questions.get("SC").put(String.valueOf(d.get(0)), this_question);
+        }
+        Collections.sort(sc_questions);
+        question_ids.put("SC", sc_questions);
+
+        for (ArrayList<Object> d : cr_qs) {
+            Question this_question = new Question.QuestionBuilder()
+                    .setId((int) d.get(0))
+                    .setQuestion(MessageFormat.format("{0}", d.get(2)))
+                    .setSource((String) d.get(12))
+                    .setAnswers(new String[]{(String) d.get(3),
+                            (String) d.get(4),
+                            (String) d.get(5),
+                            (String) d.get(6),
+                            (String) d.get(7)})
+                    .setAnswer((String) d.get(8))
+                    .setExplanation((String) d.get(12))
+                    .setDifficulty_bin_1((String) d.get(13))
+                    .setDifficulty_bin_2((String) d.get(14))
+                    .setImage((String) d.get(11))
+                    .setType("CR")
+                    .setSessions((int) (d.get(15).equals("N/A") ? 0 : d.get(15)))
+                    .setFlagged(d.get(16) != null).build();
+            cr_questions.add(this_question);
+            possible_questions.get("CR").put(String.valueOf(d.get(0)), this_question);
+        }
+        Collections.sort(cr_questions);
+        question_ids.put("CR", cr_questions);
+
     }
 
     public void answer_question(final String answer, final int[] time_taken) {
@@ -157,12 +243,14 @@ public class GMATTesterModel {
     private void reset() {
         possible_questions = new HashMap<String, HashMap<String, Question>>(){{
             put("DS", new HashMap<String, Question>());
+            put("PS", new HashMap<String, Question>());
             put("SC", new HashMap<String, Question>());
             put("RC", new HashMap<String, Question>());
             put("CR", new HashMap<String, Question>());
         }};
         question_ids = new HashMap<String, ArrayList<Question>>(){{
             put("DS", new ArrayList<Question>());
+            put("PS", new ArrayList<Question>());
             put("SC", new ArrayList<Question>());
             put("RC", new ArrayList<Question>());
             put("CR", new ArrayList<Question>());
@@ -172,12 +260,14 @@ public class GMATTesterModel {
         answered_questions = new ArrayList<>();
         flagged_questions = new HashMap<String, ArrayList<Question>>(){{
             put("DS", new ArrayList<Question>());
+            put("PS", new ArrayList<Question>());
             put("SC", new ArrayList<Question>());
             put("RC", new ArrayList<Question>());
             put("CR", new ArrayList<Question>());
         }};
         unflag_questions = new HashMap<String, ArrayList<Question>>(){{
             put("DS", new ArrayList<Question>());
+            put("PS", new ArrayList<Question>());
             put("SC", new ArrayList<Question>());
             put("RC", new ArrayList<Question>());
             put("CR", new ArrayList<Question>());
@@ -293,7 +383,6 @@ public class GMATTesterModel {
     public void set_settings(HashMap<String, Object> settings){
         this.settings = settings;
     }
-
 
     
 }
