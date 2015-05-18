@@ -27,7 +27,7 @@ public class GMATTesterModel {
     private HashMap<String, ArrayList<Question>> flagged_questions;
     private HashMap<String, ArrayList<Question>> unflag_questions;
     private HashMap<String,Object> settings;
-    private ArrayList<HashMap> answered_questions;
+    private ArrayList<HashMap<String, Object>> answered_questions;
     private String date;
     private String session_id;
     private Question cur_question;
@@ -239,6 +239,20 @@ public class GMATTesterModel {
         conn.close();
     }
 
+    public void end_study(boolean see_results){
+        update_flagged_questions();
+        if((boolean) settings.get("store_answers")){
+            if(!inserted_answers && answered_questions.size() > 0){
+                //insert_into_sql_answered_questions();
+                inserted_answers = true;
+            }
+        }
+    }
+
+    public ArrayList<HashMap <String, Object>> get_results(){
+        return this.answered_questions;
+    }
+
 
     private void reset() {
         possible_questions = new HashMap<String, HashMap<String, Question>>(){{
@@ -380,9 +394,39 @@ public class GMATTesterModel {
         }
     }
 
+    private void update_flagged_questions(){
+
+    }
+
     public void set_settings(HashMap<String, Object> settings){
         this.settings = settings;
     }
 
-    
+
+    public HashMap<String, Object> get_my_answer_for_row(final int position) {
+        String question_type = (String) ((HashMap) answered_questions.get(position)).get("type");
+        int question_id = (int) ((HashMap) answered_questions.get(position)).get("id");
+        final Question question = possible_questions.get(question_type).get(String.valueOf(question_id));
+        HashMap<String, Object> q = new HashMap(){{
+            put("id", question.getId());
+            put("question_number", position+1);
+            put("max_questions", answered_questions.size());
+            put("question" , question.getQuestion());
+            put("a", question.getAnswers()[0]);
+            put("b", question.getAnswers()[1]);
+            put("c", question.getAnswers()[2]);
+            put("d", question.getAnswers()[3]);
+            put("e", question.getAnswers()[4]);
+            put("difficulty", question.getDifficulty_bin_1());
+            put("number_correct", question.getDifficulty_bin_2());
+            put("has_image", !question.getImage().equals(""));
+            put("image_path", question.getImage());
+            put("flagged", question.isFlagged());
+            put("answer_result", new HashMap() {{
+                put("my_answer", answered_questions.get(position).get("my_answer"));
+                put("time_taken", answered_questions.get(position).get("time_taken"));
+                put("right_answer", answered_questions.get(position).get("right_answer"));}});
+        }};
+        return q;
+    }
 }

@@ -1,6 +1,7 @@
 package com.lukeli.gmatstudy;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -28,8 +29,10 @@ import android.widget.TextView;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigation Drawer new Activity
 
@@ -70,7 +73,9 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
         next_question_button = (Button) findViewById(R.id.next_question_button);
         submit_answer_button = (Button) findViewById(R.id.submit_answer_button);
         timer = (Chronometer) findViewById(R.id.timer);
-        set_presenter(new GMATTesterPresenter(this, new GMATTesterModel()));
+        GlobalVars gv = (GlobalVars)getApplicationContext();
+        set_presenter(gv.getPresenter());
+        gv.getPresenter().set_study_view(this);
         settings = new HashMap<>();
         start_study();
     }
@@ -226,6 +231,9 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
 
     public void submit_answer(View view) {
         timer.stop();
+        long elapsedMillis = SystemClock.elapsedRealtime() - timer.getBase();
+        m = (int) TimeUnit.MILLISECONDS.toMinutes(elapsedMillis);
+        s = (int) TimeUnit.MILLISECONDS.toSeconds(elapsedMillis);
         String[] answer_labels = {"A", "B", "C", "D", "E"};
         for (int i =0; i < answer_widgets.length; i++) {
             if(answer_widgets[i].isChecked()) {
@@ -252,6 +260,17 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
         }
         next_question_button.setVisibility(View.VISIBLE);
         submit_answer_button.setVisibility(View.GONE);
+    }
+
+    public void end_study_and_see_results(View view) {
+        this.timer.stop();
+        this.presenter.end_study(true);
+
+    }
+
+    public void show_results(){
+        Intent go_to_results_intent = new Intent(this, GMATResultsActivity.class); //this auto gets the results i guess...
+        startActivity(go_to_results_intent);
     }
 
 

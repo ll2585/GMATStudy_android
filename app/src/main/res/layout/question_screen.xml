@@ -53,7 +53,8 @@
             android:id="@+id/end_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Finish" />
+            android:text="Finish"
+            android:onClick="end_study_and_see_results"/>
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
