@@ -16,8 +16,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="1/2494"
-            android:paddingRight="10dp" />
-        <Chronometer android:id="@+id/timer"
+            android:paddingRight="10dp"
+            android:id="@+id/question_number_label"/>
+        <Chronometer
+            android:id="@+id/timer"
             android:format="%m:%s"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -48,7 +50,8 @@
             android:id="@+id/back_to_main_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="End" />
+            android:text="End"
+            android:onClick="end_study"/>
         <Button
             android:id="@+id/end_button"
             android:layout_width="wrap_content"
@@ -72,10 +75,13 @@
             android:layout_height="wrap_content"
             android:id="@+id/question_id"
             android:text="Rome’s great intellectual achievements laid in organizing the Empire, but Greece’s had laid in mathematical and philosophical breakthroughs."
-            android:paddingRight="10dp"
-            android:paddingBottom="10dp"
-            android:paddingLeft="10dp"
-            android:textSize="20sp"/>
+            android:paddingRight="25dp"
+            android:paddingBottom="25dp"
+            android:paddingLeft="25dp"
+            android:textSize="17sp"
+            android:paddingTop="25dp"
+            android:typeface="serif"
+            android:textColor="#ff000000" />
         <RadioGroup
             android:id="@+id/answer_button_radiogroup"
             android:layout_width="match_parent"
@@ -85,31 +91,36 @@
                 android:layout_height="match_parent"
                 android:text="laid in organizing the Empire, but Greece’s had laid"
                 android:id="@+id/a_button"
-                android:textSize="20sp"/>
+                android:textSize="17sp"
+                android:padding="10dp" />
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="laid in the organization of the Empire, but Greece’s had lain"
                 android:id="@+id/b_button"
-                android:textSize="20sp"/>
+                android:textSize="17sp"
+                android:padding="10dp" />
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="laid in organizing the Empire, whereas Greece’s had lain"
                 android:id="@+id/c_button"
-                android:textSize="20sp"/>
+                android:textSize="17sp"
+                android:padding="10dp"/>
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="lay in organizing the Empire, whereas Greece’s had lain"
                 android:id="@+id/d_button"
-                android:textSize="20sp"/>
+                android:textSize="17sp"
+                android:padding="10dp"/>
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="lay in the organization of the Empire, whereas Greece’s had laid"
                 android:id="@+id/e_button"
-                android:textSize="20sp"/>
+                android:textSize="17sp"
+                android:padding="10dp"/>
         </RadioGroup>
         <Button
             android:id="@+id/submit_answer_button"

@@ -243,7 +243,7 @@ public class GMATTesterModel {
         update_flagged_questions();
         if((boolean) settings.get("store_answers")){
             if(!inserted_answers && answered_questions.size() > 0){
-                //insert_into_sql_answered_questions();
+                insert_into_sql_answered_questions();
                 inserted_answers = true;
             }
         }

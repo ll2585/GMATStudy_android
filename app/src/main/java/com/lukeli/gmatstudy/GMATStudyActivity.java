@@ -54,6 +54,8 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
     private int m;
     private int s;
     private Chronometer timer;
+    private TextView question_number_label;
+    private Button new_question_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +74,8 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
         answer_widgets = new RadioButton[] {a_button, b_button, c_button, d_button, e_button};
         next_question_button = (Button) findViewById(R.id.next_question_button);
         submit_answer_button = (Button) findViewById(R.id.submit_answer_button);
+        new_question_button = (Button) findViewById(R.id.new_question_button);
+        question_number_label = (TextView) findViewById(R.id.question_number_label);
         timer = (Chronometer) findViewById(R.id.timer);
         GlobalVars gv = (GlobalVars)getApplicationContext();
         set_presenter(gv.getPresenter());
@@ -96,6 +100,12 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
             this.answer_widgets[i].setVisibility(View.VISIBLE);
             this.answer_widgets[i].setText(MessageFormat.format("{0} {1}",answer_labels[i], question.get(letters[i])));
         }
+        settings.put("num_questions", settings.get("num_questions").equals("") || (int) settings.get("num_questions") > (int) question.get("max_questions") ? question.get("max_questions") : settings.get("num_questions"));
+        question_number_label.setText(MessageFormat.format("{0}/{1}",question.get("question_number"), settings.get("num_questions")));
+        if (String.valueOf(question_number_label.getText()).equals(MessageFormat.format("{0}/{0}",settings.get("num_questions")))){
+            next_question_button.setEnabled(false);
+            new_question_button.setEnabled(false);
+        }
         /**
          if question['has_image']:
              import os
@@ -103,56 +113,35 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
              self.question_image.setVisible(True)
              self.question_image.setPixmap(question_image)
              self.question_image.show()
-         self.settings["num_questions"] = question["max_questions"] if self.settings["num_questions"] == ""  or self.settings["num_questions"] > question["max_questions"] else self.settings["num_questions"]
-         self.question_number_label.setText("{0}/{1}".format(question["question_number"], self.settings["num_questions"]))
-         if self.question_number_label.text() == "{0}/{0}".format(self.settings["num_questions"]) and not answer_result:
-             self.next_question_button.setDisabled(True)
-             self.new_question_button.setDisabled(True)
-         if answer_result is not None:
-             self.reset_question()
-             my_answer = answer_result["my_answer"]
-             right_answer = answer_result["right_answer"]
-             for i in range(0, len(self.answer_widgets)):
-                 if right_answer in answer_labels[i]:
-                    self.answer_widgets[i].setStyleSheet("* {background-color: rgb(0, 255, 0);}")
-                 if my_answer in answer_labels[i]:
-                    if my_answer != right_answer:
-                        self.answer_widgets[i].setStyleSheet("* {background-color: rgb(255, 0, 0);}")
-                    self.answer_widgets[i].setChecked(True)
-                     self.submit_answer_button.setVisible(False)
-                 self.answer_widgets[i].setDisabled(True)
-             m = answer_result["time_taken"][0]
-             s = answer_result["time_taken"][1]
-             time = "{0:02d}:{1:02d}".format(m,s)
-             self.time_taken.setText(time)
+
          */
     }
 
 
     public void start_study(){
 
-        settings.put("show_answer_immediately", true); //show_answer_immediately.isChecked());
-        settings.put("num_questions", "");//= '' if number_of_questions.text() == '' else int(number_of_questions.text()));
-        settings.put("min_difficulty", "");//= '' if minimum_difficulty.text() == '' else int(minimum_difficulty.text()));
-        settings.put("max_difficulty", "");//= '' if maximum_difficulty.text() == '' else int(maximum_difficulty.text()));
-        settings.put("min_percentage", "");//= '' if minimum_percentage.text() == '' else int(minimum_percentage.text()));
-        settings.put("max_percentage", "");//= '' if maximum_percentage.text() == '' else int(maximum_percentage.text()));
-        settings.put("min_sessions", "");//= '' if minimum_sessions.text() == '' else int(minimum_sessions.text()));
-        settings.put("max_sessions", "");//= '' if maximum_sessions.text() == '' else int(maximum_sessions.text()));
-        settings.put("store_answers", false);//= store_answers.isChecked());
-        settings.put("only_unanswered", false);//= only_unanswered_questions.isChecked());
-        settings.put("only_answered", false);//= only_answered_questions.isChecked());
-        settings.put("only_wrong", false);//= only_wrong_questions.isChecked());
-        settings.put("only_right",false);// = only_right_questions.isChecked());
-        settings.put("show_stats",false);// = show_answered_stats.isChecked());
-        settings.put("min_wrong", "");//= '' if min_wrong.text() == '' else int(min_wrong.text()));
-        settings.put("min_right", "");//= '' if min_right.text() == '' else int(min_right.text()));
-        settings.put("questions_to_get", new HashMap<String, Object>(){{
-            put("DS", false);//DS_checkbox.isChecked());
-            put("PS", false);//PS_checkbox.isChecked());
-            put("SC", true);//SC_checkbox.isChecked());
-            put("CR", false);//CR_checkbox.isChecked());
-        }});
+        Bundle bundle = this.getIntent().getExtras();
+        if(bundle!=null) {
+
+            settings.put("num_questions" , bundle.getString("num_questions" ).equals("") ? "" : Integer.parseInt(bundle.getString("num_questions" )));
+            settings.put("min_difficulty", bundle.getString("min_difficulty").equals("") ? "" : Integer.parseInt(bundle.getString("min_difficulty")));
+            settings.put("max_difficulty", bundle.getString("max_difficulty").equals("") ? "" : Integer.parseInt(bundle.getString("max_difficulty")));
+            settings.put("min_percentage", bundle.getString("min_percentage").equals("") ? "" : Integer.parseInt(bundle.getString("min_percentage")));
+            settings.put("max_percentage", bundle.getString("max_percentage").equals("") ? "" : Integer.parseInt(bundle.getString("max_percentage")));
+            settings.put("min_sessions"  , bundle.getString("min_sessions"  ).equals("") ? "" : Integer.parseInt(bundle.getString("min_sessions"  )));
+            settings.put("max_sessions"  , bundle.getString("max_sessions"  ).equals("") ? "" : Integer.parseInt(bundle.getString("max_sessions"  )));
+            settings.put("min_wrong"     , bundle.getString("min_wrong"     ).equals("") ? "" : Integer.parseInt(bundle.getString("min_wrong"     )));
+            settings.put("min_right"     , bundle.getString("min_right"     ).equals("") ? "" : Integer.parseInt(bundle.getString("min_right"     )));
+
+            settings.put("show_answer_immediately", bundle.getBoolean("show_answer_immediately")); //show_answer_immediately.isChecked());
+            settings.put("store_answers",           bundle.getBoolean("store_answers" ));//= store_answers.isChecked());
+            settings.put("only_unanswered",         bundle.getBoolean("only_unanswered"));//= only_unanswered_questions.isChecked());
+            settings.put("only_answered",           bundle.getBoolean("only_answered"));//= only_answered_questions.isChecked());
+            settings.put("only_wrong",              bundle.getBoolean("only_wrong"));//= only_wrong_questions.isChecked());
+            settings.put("only_right",              bundle.getBoolean("only_right"));// = only_right_questions.isChecked());
+            settings.put("show_stats",              bundle.getBoolean("show_stats"));// = show_answered_stats.isChecked());
+            settings.put("questions_to_get", bundle.getSerializable("questions_to_get"));
+        }
         for (RadioButton widget : answer_widgets) {
             widget.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -177,17 +166,14 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
     }
 
     private void show_question(){
-        /**
-        self.reset_question()
-        if self.question_number_label.text() == "{0}/{0}".format(self.settings["num_questions"]):
-        self.end_study_and_see_results()
-        else:
-        self.presenter.show_question()
-        self.timer.start(1000)
-         **/
         reset_question();
-        presenter.show_question();
-        timer.start();
+        if(String.valueOf(question_number_label.getText()).equals(MessageFormat.format("{0}/{0}", settings.get("num_questions")))){
+            end_study_and_see_results(null);
+        }else{
+            presenter.show_question();
+            timer.start();
+        }
+
     }
 
     private void reset_question() {
@@ -233,7 +219,7 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
         timer.stop();
         long elapsedMillis = SystemClock.elapsedRealtime() - timer.getBase();
         m = (int) TimeUnit.MILLISECONDS.toMinutes(elapsedMillis);
-        s = (int) TimeUnit.MILLISECONDS.toSeconds(elapsedMillis);
+        s = (int) TimeUnit.MILLISECONDS.toSeconds(elapsedMillis) % 60;
         String[] answer_labels = {"A", "B", "C", "D", "E"};
         for (int i =0; i < answer_widgets.length; i++) {
             if(answer_widgets[i].isChecked()) {
@@ -271,6 +257,11 @@ public class GMATStudyActivity extends ActionBarActivity { //TODO: Make Navigati
     public void show_results(){
         Intent go_to_results_intent = new Intent(this, GMATResultsActivity.class); //this auto gets the results i guess...
         startActivity(go_to_results_intent);
+    }
+
+    public void end_study(View view) {
+        presenter.end_study(false);
+        finish();
     }
 
 

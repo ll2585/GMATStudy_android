@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -31,13 +32,14 @@ public class ResultsAdapter extends ArrayAdapter<HashMap<String, Object>> {
         HashMap<String, Object> question = getItem(position);
         String id = String.valueOf(question.get("id"));
         TextView question_id_view = (TextView) theView.findViewById(R.id.question_result_id);
-        question_id_view.setText("ID: " + id);
-
-        if((question.get("my_answer")).equals(question.get("right_answer"))){
-            (theView.findViewById(R.id.custom_question_linear_layout)).setBackgroundColor(Color.GREEN);
-        }else{
-            (theView.findViewById(R.id.custom_question_linear_layout)).setBackgroundColor(Color.RED);
-        }
+        boolean right_answer = question.get("my_answer").equals(question.get("right_answer"));
+        question_id_view.setText(MessageFormat.format("{0} - {1} - {2} - {3,number,0}:{4,number,00}",
+                question.get("type"),
+                id,
+                right_answer ? "RIGHT" : "WRONG",
+                ((int[]) question.get("time_taken"))[0],
+                ((int[]) question.get("time_taken"))[1]));
+        (theView.findViewById(R.id.custom_question_linear_layout)).setBackgroundColor(right_answer ? Color.GREEN : Color.RED);
 
         return theView;
 

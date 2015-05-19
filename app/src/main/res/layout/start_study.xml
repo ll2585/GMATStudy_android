@@ -26,12 +26,14 @@
         android:layout_height="wrap_content"
         android:text="Quantitative"/>
     <CheckBox
+        android:id="@+id/PS_checkbox"
         android:layout_column="0"
         android:layout_row="1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Problem Solving"/>
     <CheckBox
+        android:id="@+id/DS_checkbox"
         android:layout_column="0"
         android:layout_row="2"
         android:layout_width="match_parent"
@@ -44,18 +46,21 @@
         android:layout_height="wrap_content"
         android:text="Verbal"/>
     <CheckBox
+        android:id="@+id/SC_checkbox"
         android:layout_column="1"
         android:layout_row="1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Sentence Correction"/>
     <CheckBox
+        android:id="@+id/CR_checkbox"
         android:layout_column="1"
         android:layout_row="2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Critical Reading"/>
     <CheckBox
+        android:id="@+id/RC_checkbox"
         android:layout_column="1"
         android:layout_row="3"
         android:layout_width="match_parent"
@@ -75,6 +80,7 @@
             android:layout_height="wrap_content"
             android:text="# Questions (blank for infinite):"/>
         <EditText
+            android:id="@+id/number_of_questions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"/>
@@ -88,6 +94,7 @@
             android:layout_height="wrap_content"
             android:text="Min Difficulty (blank for None):"/>
         <EditText
+            android:id="@+id/minimum_difficulty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"/>
@@ -101,6 +108,7 @@
             android:layout_height="wrap_content"
             android:text="Max Difficulty (blank for None):"/>
         <EditText
+            android:id="@+id/maximum_difficulty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"/>
@@ -114,6 +122,7 @@
             android:layout_height="wrap_content"
             android:text="Min % Right (blank for None):"/>
         <EditText
+            android:id="@+id/minimum_percentage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"/>
@@ -123,10 +132,12 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <TextView
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Max % Right (blank for None):"/>
         <EditText
+            android:id="@+id/maximum_percentage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"/>
@@ -140,6 +151,7 @@
             android:layout_height="wrap_content"
             android:text="Min Sessions (blank for None):"/>
         <EditText
+            android:id="@+id/minimum_sessions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"/>
@@ -153,6 +165,7 @@
             android:layout_height="wrap_content"
             android:text="Max Sessions (blank for None):"/>
         <EditText
+            android:id="@+id/maximum_sessions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"/>
@@ -166,6 +179,7 @@
             android:layout_height="wrap_content"
             android:text="Minimum times wrong:"/>
         <EditText
+            android:id="@+id/min_wrong"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"/>
@@ -179,6 +193,7 @@
             android:layout_height="wrap_content"
             android:text="Minimum times right:"/>
         <EditText
+            android:id="@+id/min_right"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"/>
@@ -189,42 +204,49 @@
         android:columnCount="2"
         android:rowCount="4">
         <CheckBox
+            android:id="@+id/only_unanswered_questions"
             android:layout_column="0"
             android:layout_row="0"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Only Unanswered Questions"/>
         <CheckBox
+            android:id="@+id/show_answer_immediately"
             android:layout_column="0"
             android:layout_row="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Show Answer Immediately"/>
         <CheckBox
+            android:id="@+id/store_answers"
             android:layout_column="0"
             android:layout_row="2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Store Answers"/>
         <CheckBox
+            android:id="@+id/only_answered_questions"
             android:layout_column="1"
             android:layout_row="0"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Only Answered Questions"/>
         <CheckBox
+            android:id="@+id/only_wrong_questions"
             android:layout_column="1"
             android:layout_row="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Only Wrongly Answered Questions"/>
         <CheckBox
+            android:id="@+id/only_right_questions"
             android:layout_column="1"
             android:layout_row="2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Only Right Questions"/>
         <CheckBox
+            android:id="@+id/show_answered_stats"
             android:layout_column="1"
             android:layout_row="3"
             android:layout_width="match_parent"
